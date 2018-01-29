@@ -1,5 +1,6 @@
 import sqlparse
 import sys
+import minisql as ms
 
 def getquery(arg):
     arg = sqlparse.split(str(arg))
@@ -47,8 +48,11 @@ def getquery(arg):
         print "WHERE : "+str(where_part)
 
 
+        ms.runquery(select_part,from_part,where_part)
+
+
 #################### TEST CODE ################
 
-# getquery(sys.argv[1])
+getquery(sys.argv[1])
 
 ###############################################
