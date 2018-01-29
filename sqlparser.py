@@ -1,58 +1,61 @@
 import sqlparse
 import sys
 import minisql as ms
+try:
+    def getquery(arg):
+        arg = sqlparse.split(str(arg))
+        for query in arg:
+            select_part=[]
+            from_part=[]
+            where_part=[]
+            q_break = sqlparse.parse(query)
+            q_tokens = q_break[0].tokens
 
-def getquery(arg):
-    arg = sqlparse.split(str(arg))
-    for query in arg:
-        select_part=[]
-        from_part=[]
-        where_part=[]
-        q_break = sqlparse.parse(query)
-        q_tokens = q_break[0].tokens
+            ############ EXTRACTING SELECT PART ##############
+            flag = False
 
-        ############ EXTRACTING SELECT PART ##############
-        flag = False
+            for i in q_tokens:
+                if(str(i)=='select'):
+                    flag = True
+                if(str(i)[0:5]=="where" or str(i)=="from"):
+                    flag = False
+                if(flag == True and str(i)!='select' and str(i)!=" "):
+                    to_add = str(i).split(',')
+                    select_part.extend(to_add)
 
-        for i in q_tokens:
-            if(str(i)=='select'):
-                flag = True
-            if(str(i)[0:5]=="where" or str(i)=="from"):
-                flag = False
-            if(flag == True and str(i)!='select' and str(i)!=" "):
-                to_add = str(i).split(',')
-                select_part.extend(to_add)
+            #print "SELECT : "+str(select_part)
 
-        print "SELECT : "+str(select_part)
+            ############## EXTRACTING FROM PART ##############
 
-        ############## EXTRACTING FROM PART ##############
+            flag = False
 
-        flag = False
+            for i in q_tokens:
+                if(str(i)=='from'):
+                    flag = True
+                if(str(i)=="select" or str(i)[0:5]=="where"):
+                    flag = False
+                if(flag == True and str(i)!='from' and str(i)!=" "):
+                    to_add = str(i).split(',')
+                    from_part.extend(to_add)
 
-        for i in q_tokens:
-            if(str(i)=='from'):
-                flag = True
-            if(str(i)=="select" or str(i)[0:5]=="where"):
-                flag = False
-            if(flag == True and str(i)!='from' and str(i)!=" "):
-                to_add = str(i).split(',')
-                from_part.extend(to_add)
+            #print "FROM : "+str(from_part)
 
-        print "FROM : "+str(from_part)
+            ############## EXTRACTING WHERE PART ##############
 
-        ############## EXTRACTING WHERE PART ##############
+            if(str(q_tokens[-1])[0:5]=="where"):
+                where_part.append(str(q_tokens[-1])[5:])
 
-        if(str(q_tokens[-1])[0:5]=="where"):
-            where_part.append(str(q_tokens[-1])[5:])
-
-        print "WHERE : "+str(where_part)
+            #print "WHERE : "+str(where_part)
 
 
-        ms.runquery(select_part,from_part,where_part)
-
+            ms.runquery(select_part,from_part,where_part)
+except :
+    print "Error Occoured Please Try Again!!"
 
 #################### TEST CODE ################
-
-getquery(sys.argv[1])
+try:
+    getquery(sys.argv[1])
+except:
+    print "Error!!"
 
 ###############################################
